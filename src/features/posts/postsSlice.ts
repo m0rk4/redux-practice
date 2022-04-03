@@ -19,6 +19,12 @@ export interface Reaction {
     eyes: number
 }
 
+export interface UpdatePostPayload {
+    id: string;
+    title: string;
+    content: string;
+}
+
 export interface AddPostPayload {
     title: string;
     content: string;

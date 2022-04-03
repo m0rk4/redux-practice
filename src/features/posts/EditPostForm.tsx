@@ -1,24 +1,21 @@
 import React, {useState} from 'react'
-import {useDispatch} from 'react-redux'
 import {useNavigate, useParams} from 'react-router-dom'
-
-import {postUpdated, selectPostById} from './postsSlice'
-import {useAppSelector} from "../../app/hooks";
+import {useEditPostMutation, useGetPostQuery} from "../api/apiSlice";
 
 export const EditPostForm = () => {
     const {postId} = useParams();
 
-    const post = useAppSelector(state => selectPostById(state, postId!));
+    const {data: post} = useGetPostQuery(postId!);
+    const [updatePost, {isLoading}] = useEditPostMutation();
 
     const [title, setTitle] = useState(post!.title)
     const [content, setContent] = useState(post!.content)
 
-    const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const onSavePostClicked = () => {
+    const onSavePostClicked = async () => {
         if (title && content) {
-            dispatch(postUpdated({...post!, id: postId!, title, content}))
+            await updatePost({id: postId!, title, content});
             navigate(`/posts/${postId}`)
         }
     }

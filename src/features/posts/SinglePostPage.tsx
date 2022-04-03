@@ -9,6 +9,14 @@ import {Spinner} from "../../components/Spinner";
 export const SinglePostPage = () => {
     const {postId} = useParams();
 
+    /**
+     * In this case, our <SinglePostPage> mounted and requested that individual Post by ID.
+     * When we clicked on "Edit Post", the <SinglePostPage> component was unmounted by the router,
+     * and the active subscription was removed due to unmounting. RTK Query immediately started
+     * a "remove this post data" timer.
+     * But, the <EditPostPage> component mounted right away and subscribed to the same Post data with the same cache key.
+     * So, RTK Query canceled the timer and kept using the same cached data instead of fetching it from the server.
+     */
     const {data: post, isFetching, isSuccess} = useGetPostQuery(postId!);
 
     let content;
