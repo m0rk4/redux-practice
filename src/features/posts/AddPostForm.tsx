@@ -1,40 +1,27 @@
 import React, {useState} from 'react'
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
-import {addNewPost} from "./postsSlice";
+import {useAppSelector} from "../../app/hooks";
 import {selectAllUsers} from "../users/userSlice";
+import {useAddNewPostMutation} from "../api/apiSlice";
 
 export const AddPostForm = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [userId, setUserId] = useState('');
-    const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
-    const dispatch = useAppDispatch();
+    const [addNewPost, {isLoading}] = useAddNewPostMutation();
     const users = useAppSelector(selectAllUsers);
 
-    const canSave =
-        [title, content, userId].every(Boolean) && addRequestStatus === 'idle'
+    const canSave = [title, content, userId].every(Boolean) && !isLoading;
 
     const onSavePostClicked = async () => {
         if (canSave) {
             try {
-                setAddRequestStatus('pending')
-                /**
-                 * However, it's common to want to write logic that looks at
-                 * the success or failure of the actual request that was made.
-                 * Redux Toolkit adds a .unwrap() function to the returned Promise,
-                 * which will return a new Promise that either has the actual action.payload
-                 * value from a fulfilled action, or throws an error if it's the rejected action.
-                 * This lets us handle success and failure in the component using normal try/catch logic.
-                 */
-                await dispatch(addNewPost({title, content, user: userId})).unwrap()
+                await addNewPost({title, content, user: userId}).unwrap();
                 setTitle('')
                 setContent('')
                 setUserId('')
             } catch (err) {
                 console.error('Failed to save the post: ', err)
-            } finally {
-                setAddRequestStatus('idle')
             }
         }
     }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useMemo} from 'react'
 import {Link} from "react-router-dom";
 import {PostAuthor} from "./PostAuthor";
 import {TimeAgo} from "./TimeAgo";
@@ -35,11 +35,17 @@ export const PostsList = () => {
         error
     } = useGetPostsQuery();
 
+    const sortedPosts = useMemo(() => {
+        const sortedPosts = posts.slice();
+        sortedPosts.sort((a, b) => b.date.localeCompare(a.date));
+        return sortedPosts;
+    }, [posts]);
+
     let content;
     if (isLoading) {
         content = <Spinner text="Loading..."/>;
     } else if (isSuccess) {
-        content = posts.map(post => (
+        content = sortedPosts.map(post => (
             <PostExcerpt key={post.id} post={post}/>
         ));
     } else if (isError) {
