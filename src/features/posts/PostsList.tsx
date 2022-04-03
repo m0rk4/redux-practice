@@ -1,16 +1,14 @@
-import React, {ReactText, useEffect} from 'react'
-import {useAppDispatch, useAppSelector} from "../../app/hooks";
+import React from 'react'
 import {Link} from "react-router-dom";
 import {PostAuthor} from "./PostAuthor";
 import {TimeAgo} from "./TimeAgo";
 import {ReactionButtons} from "./ReactionButtons";
-import {fetchPosts, selectPostById, selectPostIds} from "./postsSlice";
+import {Post} from "./postsSlice";
 import {Spinner} from "../../components/Spinner";
+import {useGetPostsQuery} from "../api/apiSlice";
 
-type PostExcerptProps = { postId: ReactText };
-const PostExcerpt = ({postId}: PostExcerptProps) => {
-    const post = useAppSelector(state => selectPostById(state, postId))!;
-
+type PostExcerptProps = { post: Post };
+let PostExcerpt = ({post}: PostExcerptProps) => {
     return (
         <article className="post-excerpt" key={post.id}>
             <h3>{post.title}</h3>
@@ -29,26 +27,23 @@ const PostExcerpt = ({postId}: PostExcerptProps) => {
 }
 
 export const PostsList = () => {
-    const dispatch = useAppDispatch();
-    const orderedPostIds = useAppSelector(selectPostIds);
-    const error = useAppSelector(state => state.posts.error)
-    const postStatus = useAppSelector(state => state.posts.status)
+    const {
+        data: posts = [],
+        isLoading,
+        isSuccess,
+        isError,
+        error
+    } = useGetPostsQuery();
 
-    useEffect(() => {
-        if (postStatus === 'idle') {
-            dispatch(fetchPosts())
-        }
-    }, [postStatus, dispatch])
-
-    let content
-    if (postStatus === 'loading') {
-        content = <Spinner text="Loading..."/>
-    } else if (postStatus === 'succeeded') {
-        content = orderedPostIds.map(postId => (
-            <PostExcerpt key={postId} postId={postId}/>
-        ))
-    } else if (postStatus === 'failed') {
-        content = <div>{error}</div>
+    let content;
+    if (isLoading) {
+        content = <Spinner text="Loading..."/>;
+    } else if (isSuccess) {
+        content = posts.map(post => (
+            <PostExcerpt key={post.id} post={post}/>
+        ));
+    } else if (isError) {
+        content = <div>{error?.toString() ?? 'Unknown Error!'}</div>;
     }
 
     return (
@@ -56,5 +51,5 @@ export const PostsList = () => {
             <h2>Posts</h2>
             {content}
         </section>
-    )
+    );
 }
