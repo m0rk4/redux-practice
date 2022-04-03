@@ -6,6 +6,7 @@ import {ReactionButtons} from "./ReactionButtons";
 import {Post} from "./postsSlice";
 import {Spinner} from "../../components/Spinner";
 import {useGetPostsQuery} from "../api/apiSlice";
+import classnames from "classnames";
 
 type PostExcerptProps = { post: Post };
 let PostExcerpt = ({post}: PostExcerptProps) => {
@@ -31,8 +32,10 @@ export const PostsList = () => {
         data: posts = [],
         isLoading,
         isSuccess,
+        isFetching,
         isError,
-        error
+        error,
+        refetch
     } = useGetPostsQuery();
 
     const sortedPosts = useMemo(() => {
@@ -45,9 +48,15 @@ export const PostsList = () => {
     if (isLoading) {
         content = <Spinner text="Loading..."/>;
     } else if (isSuccess) {
-        content = sortedPosts.map(post => (
+        const renderedPosts = sortedPosts.map(post => (
             <PostExcerpt key={post.id} post={post}/>
         ));
+
+        const containerClassname = classnames('posts-container', {
+            disabled: isFetching
+        })
+
+        content = <div className={containerClassname}>{renderedPosts}</div>
     } else if (isError) {
         content = <div>{error?.toString() ?? 'Unknown Error!'}</div>;
     }
@@ -55,6 +64,7 @@ export const PostsList = () => {
     return (
         <section className="posts-list">
             <h2>Posts</h2>
+            <button onClick={refetch}>Refetch Posts</button>
             {content}
         </section>
     );
