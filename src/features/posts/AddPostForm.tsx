@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import {addNewPost} from "./postsSlice";
+import {selectAllUsers} from "../users/userSlice";
 
 export const AddPostForm = () => {
     const [title, setTitle] = useState('');
@@ -9,7 +10,7 @@ export const AddPostForm = () => {
     const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
     const dispatch = useAppDispatch();
-    const users = useAppSelector(state => state.users);
+    const users = useAppSelector(selectAllUsers);
 
     const canSave =
         [title, content, userId].every(Boolean) && addRequestStatus === 'idle'
