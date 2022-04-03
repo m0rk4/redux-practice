@@ -9,7 +9,7 @@ interface User {
 
 const initialState: User[] = [];
 
-export const fetchUsers = createAsyncThunk<User[], void>('users/fetchUsers', async () => {
+export const fetchUsers = createAsyncThunk<User[]>('users/fetchUsers', async () => {
     const response = await client.get('/fakeApi/users')
     return response.data
 })
